@@ -11,6 +11,8 @@ import itertools
 
 config = bunch.Bunch
 
+boto3.set_stream_logger(name='botocore')
+
 # this will be assigned by setup()
 prefix = None
 
