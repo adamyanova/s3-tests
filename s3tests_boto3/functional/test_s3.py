@@ -5510,6 +5510,32 @@ def _multipart_upload(bucket_name, key, size, part_size=5*1024*1024, client=None
     return (upload_id, s, parts)
 
 @attr(resource='object')
+@attr(method='download')
+@attr(operation='multipart download')
+@attr(assertion='succeeds')
+def test_multipart_download_with_aws4():
+    bucket = get_new_bucket()
+    key = 'key1'
+    filename = "./data/file.mpg"
+
+    config = boto3.s3.transfer.TransferConfig(
+        multipart_threshold=2048 * 1024,
+        max_concurrency=10,
+        num_download_attempts=10,
+        multipart_chunksize=2048 * 1024,
+        max_io_queue=10000
+    )
+
+    upload = boto3.s3.transfer.S3Transfer(client=get_client(), config=config)
+    upload.upload_file(filename, bucket, key)   
+
+    download = boto3.s3.transfer.S3Transfer(client=get_client(), config=config)
+    download.download_file(bucket, key, 'foo2.mpg')
+    key1='tmp'
+    key2='tmp'
+    eq(key1, key2)   
+
+@attr(resource='object')
 @attr(method='put')
 @attr(operation='test copy object of a multipart upload')
 @attr(assertion='successful')
